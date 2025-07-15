@@ -12,6 +12,11 @@ const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const filteredData = useMemo(() => {
+    // Only show results if there's a search term or a category is selected
+    if (!searchTerm && !selectedCategory) {
+      return [];
+    }
+    
     return qaData.filter((item) => {
       const matchesSearch = searchTerm === "" || 
         item.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -22,6 +27,8 @@ const Index = () => {
       return matchesSearch && matchesCategory;
     });
   }, [searchTerm, selectedCategory]);
+
+  const hasActiveFilter = searchTerm || selectedCategory;
 
   const clearAll = () => {
     setSearchTerm("");
@@ -89,14 +96,24 @@ const Index = () => {
         </div>
 
         {/* Results */}
-        {filteredData.length === 0 ? (
+        {!hasActiveFilter ? (
+          <div className="text-center py-16">
+            <div className="p-4 bg-muted/50 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+              <BookOpen className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">Welcome to CIL Manual</h3>
+            <p className="text-muted-foreground mb-4">
+              Start by searching for a topic or selecting a category to browse procurement guidelines.
+            </p>
+          </div>
+        ) : filteredData.length === 0 ? (
           <div className="text-center py-16">
             <div className="p-4 bg-muted/50 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
               <Zap className="h-8 w-8 text-muted-foreground" />
             </div>
             <h3 className="text-xl font-semibold mb-2">No results found</h3>
             <p className="text-muted-foreground mb-4">
-              Try adjusting your search terms or clearing the filters.
+              Try adjusting your search terms or selecting a different category.
             </p>
             <Button onClick={clearAll} variant="outline">
               Clear All Filters
